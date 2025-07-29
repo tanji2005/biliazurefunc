@@ -1,33 +1,33 @@
-import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import {
   local_cache_secret,
   db_bitio_enabled,
   db_bitio_pool,
 } from "../src/_config";
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log('HTTP trigger function processed a request.');
 
     // 提取查询参数
-    const urlObject = new URL(req.url);
+    const urlObject = new URL(request.url);
     const queryParams = new URLSearchParams(urlObject.search);
     const secret = queryParams.get('s');
 
     if (secret !== local_cache_secret) {
-        context.res = {
+        return {
             status: 403,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { mes: "Secret Error!" }
+            body: JSON.stringify({ mes: "Secret Error!" })
         };
     } else if (db_bitio_enabled === 0) {
-        context.res = {
+        return {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { mes: "未启用Postgresql数据库" }
+            body: JSON.stringify({ mes: "未启用Postgresql数据库" })
         };
     } else {
         await db_bitio_pool
@@ -65,12 +65,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             )
             .catch((err) => console.error(err));
             
-        context.res = {
+        return {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { mes: "Postgresql Init Done!" }
+            body: JSON.stringify({ mes: "Postgresql Init Done!" })
         };
     }
 };

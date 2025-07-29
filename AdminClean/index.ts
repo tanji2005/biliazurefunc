@@ -1,31 +1,31 @@
-import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import ss from "@beetcb/sstore";
 import { local_cache_secret } from "../src/_config";
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log('HTTP trigger function processed a request.');
 
     // 提取查询参数
-    const urlObject = new URL(req.url);
+    const urlObject = new URL(request.url);
     const queryParams = new URLSearchParams(urlObject.search);
     const secret = queryParams.get('s');
 
     if (secret !== local_cache_secret) {
-        context.res = {
+        return {
             status: 403,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { mes: "Secret Error!" }
+            body: JSON.stringify({ mes: "Secret Error!" })
         };
     } else {
         ss.clear();
-        context.res = {
+        return {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { mes: "Clean All Cache and Logs! Done!" }
+            body: JSON.stringify({ mes: "Clean All Cache and Logs! Done!" })
         };
     }
 };

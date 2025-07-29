@@ -1,4 +1,4 @@
-import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import fs from "fs";
 import { createHash } from "crypto";
 import { local_cache_secret } from "../src/_config";
@@ -7,11 +7,11 @@ const confPath = `/tmp/conf/${createHash("md5")
   .update("conf.json", "utf8")
   .digest("hex")}`;
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log('HTTP trigger function processed a request.');
 
     // 从完整的请求 URL 中提取路径和查询参数
-    const urlObject = new URL(req.url);
+    const urlObject = new URL(request.url);
     const url_data = `${urlObject.pathname}${urlObject.search}`;
 
     // 提取查询参数
@@ -19,12 +19,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     const secret = queryParams.get('s');
 
     if (secret !== local_cache_secret) {
-        context.res = {
+        return {
             status: 403,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { mes: "Secret Error!" }
+            body: JSON.stringify({ mes: "Secret Error!" })
         };
     } else {
         let hotConf = {};
@@ -43,12 +43,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
         hotConf = await JSON.parse(fs.readFileSync(confPath).toString() || "{}");
 
-        context.res = {
+        return {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: hotConf
+            body: JSON.stringify(hotConf)
         };
     }
 };

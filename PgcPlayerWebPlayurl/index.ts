@@ -1,16 +1,21 @@
-import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import * as env from "../src/_config";
 import * as data_parse from "../src/utils/player-data-handler/web";
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log('HTTP trigger function processed a request.');
 
     try {
         // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(req.url);
+        const urlObject = new URL(request.url);
         const url_data = `${urlObject.pathname}${urlObject.search}`;
         
         let PassWebOnCheck: 0 | 1 = 0; // 当检测到请求来自B站时不受web_on开关影响
+        
+        // Get header values using Azure Functions v4 Headers API
+        const origin = request.headers.get('origin');
+        const referer = request.headers.get('referer');
+        const cookieHeader = request.headers.get('cookie');
         
         // Set CORS headers
         const headers: any = {
@@ -21,18 +26,14 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
 
         if (
-            new RegExp("^https?://([a-z]+.bilibili.com|bilibili.com)$", "g").test(
-                req.headers.origin
-            ) ||
-            (env.pass_web_on_check &&
-                req.headers.referer === "https://www.bilibili.com")
+            (origin && new RegExp("^https?://([a-z]+.bilibili.com|bilibili.com)$", "g").test(origin)) ||
+            (env.pass_web_on_check && referer === "https://www.bilibili.com")
         ) {
-            headers['Access-Control-Allow-Origin'] = req.headers.origin as string;
+            headers['Access-Control-Allow-Origin'] = origin;
             PassWebOnCheck = 1;
         }
 
         // Extract cookies from headers (Azure Functions doesn't have req.cookies like Next.js)
-        const cookieHeader = req.headers.cookie || '';
         const cookies = {};
         if (cookieHeader) {
             cookieHeader.split(';').forEach(cookie => {
@@ -47,11 +48,11 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             url_data,
             cookies,
             PassWebOnCheck,
-            req.method
+            request.method
         );
 
         if (continue_execute[0] == false) {
-            context.res = {
+            return {
                 status: 200,
                 headers: {
                     ...headers,
@@ -60,7 +61,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                     'Cloudflare-CDN-Cache-Control': 'max-age=30',
                     'Vercel-CDN-Cache-Control': 'max-age=30'
                 },
-                body: env.block(continue_execute[1], continue_execute[2] || "")
+                body: JSON.stringify(env.block(continue_execute[1], continue_execute[2] || ""))
             };
         } else {
             const result = await data_parse.main(
@@ -72,7 +73,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                 }
             );
 
-            context.res = {
+            return {
                 status: 200,
                 headers: {
                     ...headers,
@@ -81,17 +82,17 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                     'Cloudflare-CDN-Cache-Control': 'max-age=3600',
                     'Vercel-CDN-Cache-Control': 'max-age=3600'
                 },
-                body: result
+                body: JSON.stringify(result)
             };
         }
     } catch (error) {
         context.log('Error:', error);
-        context.res = {
+        return {
             status: 500,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { error: 'Internal server error' }
+            body: JSON.stringify({ error: 'Internal server error' })
         };
     }
 };

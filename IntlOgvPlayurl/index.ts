@@ -1,16 +1,16 @@
-import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import * as env from "../src/_config";
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log('HTTP trigger function processed a request.');
 
     try {
         // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(req.url);
+        const urlObject = new URL(request.url);
         const url_data = `${urlObject.pathname}${urlObject.search}`;
         
         const response = await fetch(env.api.intl.playurl + url_data, {
-            method: req.method,
+            method: request.method,
             headers: {
                 "User-Agent": env.UA,
             },
@@ -18,7 +18,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
         const textResponse = await response.text();
 
-        context.res = {
+        return {
             status: 200,
             headers: {
                 'Content-Type': 'text/plain'
@@ -27,12 +27,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
     } catch (error) {
         context.log('Error:', error);
-        context.res = {
+        return {
             status: 500,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { error: 'Internal server error' }
+            body: JSON.stringify({ error: 'Internal server error' })
         };
     }
 };

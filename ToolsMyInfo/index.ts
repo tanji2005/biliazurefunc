@@ -1,4 +1,4 @@
-import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { logger } from "../src/_config";
 import qs from "qs";
 import * as env from "../src/_config";
@@ -7,15 +7,15 @@ import {
     access_keyParams2info,
 } from "../src/utils/_bili";
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log('HTTP trigger function processed a request.');
 
     try {
         // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(req.url);
+        const urlObject = new URL(request.url);
         const url_data = `${urlObject.pathname}${urlObject.search}`;
         
-        logger.child({ action: "", method: req.method, url: req.url }).info({});
+        logger.child({ action: "", method: request.method, url: request.url }).info({});
         
         const url = new URL(url_data, env.api.main.web.playurl);
         const data = qs.parse(url.search.slice(1));
@@ -29,21 +29,21 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                 : access_key2info(data.access_key as string)),
         };
 
-        context.res = {
+        return {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: result
+            body: JSON.stringify(result)
         };
     } catch (error) {
         context.log('Error:', error);
-        context.res = {
+        return {
             status: 500,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: { error: 'Internal server error' }
+            body: JSON.stringify({ error: 'Internal server error' })
         };
     }
 };
