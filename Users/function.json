@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "legacy/users/{uid}",
+      "route": "users/{uid}",
       "methods": ["get", "post"]
     },
     {

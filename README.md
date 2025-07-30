@@ -39,18 +39,18 @@ azure_functions/
 - `/api/admin/init` → AdminInit  
 - `/api/admin/log` → AdminLog
 
-### Legacy APIs (11)
-- `/api/legacy/intl/gateway/v2/app/search/type` → IntlAppSearchType
-- `/api/legacy/intl/gateway/v2/app/subtitle` → IntlAppSubtitle
-- `/api/legacy/intl/gateway/v2/ogv/playurl` → IntlOgvPlayurl
-- `/api/legacy/intl/gateway/v2/ogv/view/app/season` → IntlOgvViewAppSeason
-- `/api/legacy/pgc/player/api/playurl` → PgcPlayerApiPlayurl
-- `/api/legacy/pgc/player/web/playurl` → PgcPlayerWebPlayurl
-- `/api/legacy/pgc/view/v2/app/season` → PgcViewV2AppSeason
-- `/api/legacy/pgc/view/web/season` → PgcViewWebSeason
-- `/api/legacy/server_info` → ServerInfo
-- `/api/legacy/x/v2/search/type` → XV2SearchType
-- `/api/legacy/x/web-interface/search/type` → XWebInterfaceSearchType
+### Standard APIs (11)
+- `/api/intl/gateway/v2/app/search/type` → IntlAppSearchType
+- `/api/intl/gateway/v2/app/subtitle` → IntlAppSubtitle
+- `/api/intl/gateway/v2/ogv/playurl` → IntlOgvPlayurl
+- `/api/intl/gateway/v2/ogv/view/app/season` → IntlOgvViewAppSeason
+- `/api/pgc/player/api/playurl` → PgcPlayerApiPlayurl
+- `/api/pgc/player/web/playurl` → PgcPlayerWebPlayurl
+- `/api/pgc/view/v2/app/season` → PgcViewV2AppSeason
+- `/api/pgc/view/web/season` → PgcViewWebSeason
+- `/api/server_info` → ServerInfo
+- `/api/x/v2/search/type` → XV2SearchType
+- `/api/x/web-interface/search/type` → XWebInterfaceSearchType
 
 ### Tools APIs (2)
 - `/api/tools/cookies2accesskey` → ToolsCookies2Accesskey
@@ -95,9 +95,9 @@ After starting the functions, all APIs will be available at:
 - `http://localhost:7071/api/[route]`
 
 Examples:
-- Main PlayUrl API: `http://localhost:7071/api/legacy/pgc/player/api/playurl`
+- Main PlayUrl API: `http://localhost:7071/api/pgc/player/api/playurl`
 - User API: `http://localhost:7071/api/users/123456`
-- Server Info: `http://localhost:7071/api/legacy/server_info`
+- Server Info: `http://localhost:7071/api/server_info`
 - Admin Clean: `http://localhost:7071/api/admin/clean?s=[secret]`
 
 ## Migration Notes
