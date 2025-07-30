@@ -4,7 +4,7 @@
       "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
-      "name": "req",
+      "name": "request",
       "route": "legacy/pgc/view/v2/app/season",
       "methods": ["get", "post"]
     },

@@ -4,7 +4,7 @@
       "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
-      "name": "req",
+      "name": "request",
       "route": "legacy/pgc/player/api/playurl",
       "methods": ["get", "post"]
     },
