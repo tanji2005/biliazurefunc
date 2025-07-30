@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "api/tools/cookies2accesskey",
+      "route": "legacy/tools/cookies2accesskey",
       "methods": ["get", "post"]
     },
     {

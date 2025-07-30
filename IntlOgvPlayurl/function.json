@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "intl/gateway/v2/ogv/playurl",
+      "route": "legacy/intl/gateway/v2/ogv/playurl",
       "methods": ["get", "post"]
     },
     {

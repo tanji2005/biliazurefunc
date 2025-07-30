@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "intl/gateway/v2/ogv/view/app/season",
+      "route": "legacy/intl/gateway/v2/ogv/view/app/season",
       "methods": ["get", "post"]
     },
     {

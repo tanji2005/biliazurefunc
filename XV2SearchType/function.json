@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "x/v2/search/type",
+      "route": "legacy/x/v2/search/type",
       "methods": ["get", "post"]
     },
     {

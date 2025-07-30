@@ -53,9 +53,11 @@ module.exports = function (context, req) {
     return __awaiter(this, void 0, void 0, function* () {
         context.log('ToolsMyInfo: Starting');
         try {
-            // 从完整的请求 URL 中提取路径和查询参数
+            // 从完整的请求 URL 中提取路径和查询参数，并映射到正确的 Bilibili API 路径
             const urlObject = new URL(req.url);
-            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            // 将 /api/legacy/[path] 映射为 /[path]
+            const mappedPath = urlObject.pathname.replace('/api/legacy', '');
+            const url_data = `${mappedPath}${urlObject.search}`;
             _config_1.logger.child({ action: "", method: req.method, url: req.url }).info({});
             const url = new URL(url_data, env.api.main.web.playurl);
             const data = qs_1.default.parse(url.search.slice(1));

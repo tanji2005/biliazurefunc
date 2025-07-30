@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "pgc/player/web/playurl",
+      "route": "legacy/pgc/player/web/playurl",
       "methods": ["get", "post", "options"]
     },
     {

@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "pgc/view/web/season",
+      "route": "legacy/pgc/view/web/season",
       "methods": ["get", "post"]
     },
     {

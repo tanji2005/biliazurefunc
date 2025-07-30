@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "route": "api/server_info",
+      "route": "legacy/server_info",
       "methods": ["get", "post"]
     },
     {
