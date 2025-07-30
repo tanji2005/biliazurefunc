@@ -35,29 +35,29 @@ azure_functions/
 ✅ **18 Azure Functions created** covering all API endpoints from the original Next.js project:
 
 ### Admin APIs (3)
-- `/api/admin/clean` → AdminClean
-- `/api/admin/init` → AdminInit  
-- `/api/admin/log` → AdminLog
+- `/admin/clean` → AdminClean
+- `/admin/init` → AdminInit
+- `/admin/log` → AdminLog
 
 ### Standard APIs (11)
-- `/api/intl/gateway/v2/app/search/type` → IntlAppSearchType
-- `/api/intl/gateway/v2/app/subtitle` → IntlAppSubtitle
-- `/api/intl/gateway/v2/ogv/playurl` → IntlOgvPlayurl
-- `/api/intl/gateway/v2/ogv/view/app/season` → IntlOgvViewAppSeason
-- `/api/pgc/player/api/playurl` → PgcPlayerApiPlayurl
-- `/api/pgc/player/web/playurl` → PgcPlayerWebPlayurl
-- `/api/pgc/view/v2/app/season` → PgcViewV2AppSeason
-- `/api/pgc/view/web/season` → PgcViewWebSeason
-- `/api/server_info` → ServerInfo
-- `/api/x/v2/search/type` → XV2SearchType
-- `/api/x/web-interface/search/type` → XWebInterfaceSearchType
+- `/intl/gateway/v2/app/search/type` → IntlAppSearchType
+- `/intl/gateway/v2/app/subtitle` → IntlAppSubtitle
+- `/intl/gateway/v2/ogv/playurl` → IntlOgvPlayurl
+- `/intl/gateway/v2/ogv/view/app/season` → IntlOgvViewAppSeason
+- `/pgc/player/api/playurl` → PgcPlayerApiPlayurl
+- `/pgc/player/web/playurl` → PgcPlayerWebPlayurl
+- `/pgc/view/v2/app/season` → PgcViewV2AppSeason
+- `/pgc/view/web/season` → PgcViewWebSeason
+- `/server_info` → ServerInfo
+- `/x/v2/search/type` → XV2SearchType
+- `/x/web-interface/search/type` → XWebInterfaceSearchType
 
 ### Tools APIs (2)
-- `/api/tools/cookies2accesskey` → ToolsCookies2Accesskey
-- `/api/tools/my_info` → ToolsMyInfo
+- `/tools/cookies2accesskey` → ToolsCookies2Accesskey
+- `/tools/my_info` → ToolsMyInfo
 
 ### User APIs (1)
-- `/api/users/[uid]` → Users (dynamic route)
+- `/users/[uid]` → Users (dynamic route)
 
 ### Additional (1)
 - Custom PlayUrl function for main playurl handling
@@ -92,13 +92,13 @@ azure_functions/
 ## Example URLs
 
 After starting the functions, all APIs will be available at:
-- `http://localhost:7071/api/[route]`
+- `http://localhost:7071/[route]`
 
 Examples:
-- Main PlayUrl API: `http://localhost:7071/api/pgc/player/api/playurl`
-- User API: `http://localhost:7071/api/users/123456`
-- Server Info: `http://localhost:7071/api/server_info`
-- Admin Clean: `http://localhost:7071/api/admin/clean?s=[secret]`
+- Main PlayUrl API: `http://localhost:7071/pgc/player/api/playurl`
+- User API: `http://localhost:7071/users/123456`
+- Server Info: `http://localhost:7071/server_info`
+- Admin Clean: `http://localhost:7071/admin/clean?s=[secret]`
 
 ## Migration Notes
 
