@@ -50,8 +50,8 @@ module.exports = function (context, req) {
         try {
             // 从完整的请求 URL 中提取路径和查询参数，并映射到正确的 Bilibili API 路径
             const urlObject = new URL(req.url);
-            // 将 /api/legacy/[path] 映射为 /[path]
-            const mappedPath = urlObject.pathname.replace('/api/legacy', '');
+            // 将 /legacy/[path] 映射为 /[path]
+            const mappedPath = urlObject.pathname.replace('/legacy', '');
             const url_data = `${mappedPath}${urlObject.search}`;
             let PassWebOnCheck = 0; // 当检测到请求来自B站时不受web_on开关影响
             // Get header values - req.headers is a plain object in traditional Azure Functions

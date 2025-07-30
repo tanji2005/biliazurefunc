@@ -40,17 +40,17 @@ azure_functions/
 - `/api/admin/log` → AdminLog
 
 ### Legacy APIs (11)
-- `/api/legacy/intl/gateway/v2/app/search/type` → IntlAppSearchType
-- `/api/legacy/intl/gateway/v2/app/subtitle` → IntlAppSubtitle
-- `/api/legacy/intl/gateway/v2/ogv/playurl` → IntlOgvPlayurl
-- `/api/legacy/intl/gateway/v2/ogv/view/app/season` → IntlOgvViewAppSeason
-- `/api/legacy/pgc/player/api/playurl` → PgcPlayerApiPlayurl
-- `/api/legacy/pgc/player/web/playurl` → PgcPlayerWebPlayurl
-- `/api/legacy/pgc/view/v2/app/season` → PgcViewV2AppSeason
-- `/api/legacy/pgc/view/web/season` → PgcViewWebSeason
-- `/api/legacy/server_info` → ServerInfo
-- `/api/legacy/x/v2/search/type` → XV2SearchType
-- `/api/legacy/x/web-interface/search/type` → XWebInterfaceSearchType
+- `/legacy/intl/gateway/v2/app/search/type` → IntlAppSearchType
+- `/legacy/intl/gateway/v2/app/subtitle` → IntlAppSubtitle
+- `/legacy/intl/gateway/v2/ogv/playurl` → IntlOgvPlayurl
+- `/legacy/intl/gateway/v2/ogv/view/app/season` → IntlOgvViewAppSeason
+- `/legacy/pgc/player/api/playurl` → PgcPlayerApiPlayurl
+- `/legacy/pgc/player/web/playurl` → PgcPlayerWebPlayurl
+- `/legacy/pgc/view/v2/app/season` → PgcViewV2AppSeason
+- `/legacy/pgc/view/web/season` → PgcViewWebSeason
+- `/legacy/server_info` → ServerInfo
+- `/legacy/x/v2/search/type` → XV2SearchType
+- `/legacy/x/web-interface/search/type` → XWebInterfaceSearchType
 
 ### Tools APIs (2)
 - `/api/tools/cookies2accesskey` → ToolsCookies2Accesskey
@@ -92,13 +92,13 @@ azure_functions/
 ## Example URLs
 
 After starting the functions, all APIs will be available at:
-- `http://localhost:7071/api/[route]`
+- `http://localhost:7071/[route]`
 
 Examples:
-- Main PlayUrl API: `http://localhost:7071/api/legacy/pgc/player/api/playurl`
-- User API: `http://localhost:7071/api/users/123456`
-- Server Info: `http://localhost:7071/api/legacy/server_info`
-- Admin Clean: `http://localhost:7071/api/admin/clean?s=[secret]`
+- Main PlayUrl API: `http://localhost:7071/legacy/pgc/player/api/playurl`
+- User API: `http://localhost:7071/users/123456`
+- Server Info: `http://localhost:7071/legacy/server_info`
+- Admin Clean: `http://localhost:7071/admin/clean?s=[secret]`
 
 ## Migration Notes
 
