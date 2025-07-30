@@ -1,27 +1,27 @@
-import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-
-const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
-    context.log('ServerInfo: Starting function execution');
+// 使用最基本的模块导出，不依赖特定类型
+module.exports = async function (context: any, req: any) {
+    context.log('ServerInfo: Starting with basic module.exports');
 
     try {
-        // 最简单的测试 - 只返回固定数据
-        context.log('ServerInfo: About to return test response');
+        context.log('ServerInfo: Creating basic response');
         
-        return {
+        context.res = {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
-                message: 'ServerInfo test response',
+                message: 'ServerInfo basic response',
                 timestamp: new Date().toISOString(),
-                method: request.method,
-                url: request.url
+                method: req?.method || 'unknown',
+                url: req?.url || 'unknown'
             })
         };
+        
+        context.log('ServerInfo: Response created successfully');
     } catch (error) {
-        context.log('ServerInfo: Error in try-catch:', error);
-        return {
+        context.log('ServerInfo: Error occurred:', error);
+        context.res = {
             status: 500,
             headers: {
                 'Content-Type': 'application/json'
@@ -33,5 +33,3 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
         };
     }
 };
-
-export default httpTrigger;

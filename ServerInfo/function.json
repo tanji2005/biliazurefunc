@@ -4,7 +4,7 @@
       "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
-      "name": "request",
+      "name": "req",
       "route": "legacy/server_info",
       "methods": ["get", "post"]
     },

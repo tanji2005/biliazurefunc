@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,38 +7,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('ServerInfo: Starting function execution');
-    try {
-        // 最简单的测试 - 只返回固定数据
-        context.log('ServerInfo: About to return test response');
-        return {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: 'ServerInfo test response',
-                timestamp: new Date().toISOString(),
-                method: request.method,
-                url: request.url
-            })
-        };
-    }
-    catch (error) {
-        context.log('ServerInfo: Error in try-catch:', error);
-        return {
-            status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                error: 'Function error',
-                details: String(error)
-            })
-        };
-    }
-});
-exports.default = httpTrigger;
+// 使用最基本的模块导出，不依赖特定类型
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('ServerInfo: Starting with basic module.exports');
+        try {
+            context.log('ServerInfo: Creating basic response');
+            context.res = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: 'ServerInfo basic response',
+                    timestamp: new Date().toISOString(),
+                    method: (req === null || req === void 0 ? void 0 : req.method) || 'unknown',
+                    url: (req === null || req === void 0 ? void 0 : req.url) || 'unknown'
+                })
+            };
+            context.log('ServerInfo: Response created successfully');
+        }
+        catch (error) {
+            context.log('ServerInfo: Error occurred:', error);
+            context.res = {
+                status: 500,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    error: 'Function error',
+                    details: String(error)
+                })
+            };
+        }
+    });
+};
 //# sourceMappingURL=index.js.map
