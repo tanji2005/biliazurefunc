@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "admin/init",
+      "route": "api/admin/init",
       "methods": ["get", "post"]
     },
     {

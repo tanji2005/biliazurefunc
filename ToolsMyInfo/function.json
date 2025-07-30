@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "tools/my_info",
+      "route": "api/tools/my_info",
       "methods": ["get", "post"]
     },
     {

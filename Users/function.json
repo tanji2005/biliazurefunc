@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "users/{uid}",
+      "route": "api/users/{uid}",
       "methods": ["get", "post"]
     },
     {

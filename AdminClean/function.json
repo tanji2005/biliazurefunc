@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "admin/clean",
+      "route": "api/admin/clean",
       "methods": ["get", "post"]
     },
     {

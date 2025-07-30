@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "admin/log",
+      "route": "api/admin/log",
       "methods": ["get", "post"]
     },
     {
