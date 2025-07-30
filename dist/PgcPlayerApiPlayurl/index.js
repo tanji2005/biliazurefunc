@@ -44,13 +44,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const env = __importStar(require("../src/_config"));
 const data_parse = __importStar(require("../src/utils/player-data-handler/app"));
-// convertHeaders function to convert headers format
+// convertHeaders function to convert headers format for Azure Functions traditional model
 function convertHeaders(headers) {
-    const result = {};
-    for (const [key, value] of headers.entries()) {
-        result[key] = value;
-    }
-    return result;
+    // In Azure Functions traditional model, headers is already a plain object
+    return headers || {};
 }
 module.exports = function (context, req) {
     return __awaiter(this, void 0, void 0, function* () {

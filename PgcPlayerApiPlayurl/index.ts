@@ -1,12 +1,10 @@
 import * as env from "../src/_config";
 import * as data_parse from "../src/utils/player-data-handler/app";
-// convertHeaders function to convert headers format
+
+// convertHeaders function to convert headers format for Azure Functions traditional model
 function convertHeaders(headers: any): { [key: string]: string } {
-    const result: { [key: string]: string } = {};
-    for (const [key, value] of headers.entries()) {
-        result[key] = value;
-    }
-    return result;
+    // In Azure Functions traditional model, headers is already a plain object
+    return headers || {};
 }
 
 module.exports = async function (context: any, req: any) {

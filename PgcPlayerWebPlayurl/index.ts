@@ -10,10 +10,10 @@ module.exports = async function (context: any, req: any) {
         
         let PassWebOnCheck: 0 | 1 = 0; // 当检测到请求来自B站时不受web_on开关影响
         
-        // Get header values using Azure Functions v4 Headers API
-        const origin = req.headers.get('origin');
-        const referer = req.headers.get('referer');
-        const cookieHeader = req.headers.get('cookie');
+        // Get header values - req.headers is a plain object in traditional Azure Functions
+        const origin = req.headers.origin;
+        const referer = req.headers.referer;
+        const cookieHeader = req.headers.cookie;
         
         // Set CORS headers
         const headers: any = {
