@@ -227,9 +227,9 @@ exports.public_blacklist = "https://black.qimo.ink/api/users/";
 //============================================================
 //=====================限制API调用=============================
 //要求登录 1-开 0-关
-exports.need_login = 1;
+exports.need_login = 0;
 //允许WEB版使用(B站官网可直接请求,无需开启此选项) 1-开 0-关
-exports.web_on = 0;
+exports.web_on = 1;
 //允许Referer为 https://www.bilibili.com 的请求而无需打开web_on (解决BBDown问题) 1-开 0-关
 //用BBDown的打开此选项(虽然似乎没用)
 exports.pass_web_on_check = 1;
