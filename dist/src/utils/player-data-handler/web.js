@@ -155,28 +155,68 @@ const main = (url_data, cookies, info_cache) => __awaiter(void 0, void 0, void 0
         if (rCache)
             return { code: 0, message: "success", result: rCache };
         else {
-            const res = (yield fetch(env.api.main.web.playurl +
-                url_data +
-                (access_key ? "&access_key=" + access_key : ""), env.fetch_config_UA).then((res) => res.json()));
+            try {
+                const response = yield fetch(env.api.main.web.playurl +
+                    url_data +
+                    (access_key ? "&access_key=" + access_key : ""), env.fetch_config_UA);
+                // 检查响应状态
+                if (!response.ok) {
+                    console.log("Bilibili API响应错误:", response.status, response.statusText);
+                    return { code: -1, message: `HTTP ${response.status}: ${response.statusText}` };
+                }
+                // 检查内容类型
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    console.log("Bilibili API返回非JSON内容:", contentType);
+                    const text = yield response.text();
+                    console.log("Response text:", text.substring(0, 200));
+                    return { code: -1, message: "API返回了非JSON响应" };
+                }
+                const res = yield response.json();
+                if (res.code === 0)
+                    yield playerUtil.addNewCache(url_data, res === null || res === void 0 ? void 0 : res.result);
+                return env.try_unblock_CDN_speed_enabled
+                    ? JSON.parse(JSON.stringify(res).replace(/bw=[^&]*/g, "bw=1280000"))
+                    : res; //尝试解除下载速度限制
+            }
+            catch (error) {
+                console.log("fetchDataFromBili错误:", error);
+                return { code: -1, message: `请求失败: ${error instanceof Error ? error.message : String(error)}` };
+            }
+        }
+    }
+    else {
+        cookies = bili.getCookies();
+        // console.log(env.api.main.web.playurl + url_data);
+        try {
+            const response = yield fetch(env.api.main.web.playurl + url_data, {
+                headers: { "User-Agent": env.UA, cookie: cookies },
+            });
+            // 检查响应状态
+            if (!response.ok) {
+                console.log("Bilibili API响应错误:", response.status, response.statusText);
+                return { code: -1, message: `HTTP ${response.status}: ${response.statusText}` };
+            }
+            // 检查内容类型
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                console.log("Bilibili API返回非JSON内容:", contentType);
+                const text = yield response.text();
+                console.log("Response text:", text.substring(0, 200));
+                return { code: -1, message: "API返回了非JSON响应" };
+            }
+            const res = yield response.json();
+            // console.log(res);
             if (res.code === 0)
                 yield playerUtil.addNewCache(url_data, res === null || res === void 0 ? void 0 : res.result);
             return env.try_unblock_CDN_speed_enabled
                 ? JSON.parse(JSON.stringify(res).replace(/bw=[^&]*/g, "bw=1280000"))
                 : res; //尝试解除下载速度限制
         }
-    }
-    else {
-        cookies = bili.getCookies();
-        // console.log(env.api.main.web.playurl + url_data);
-        const res = (yield fetch(env.api.main.web.playurl + url_data, {
-            headers: { "User-Agent": env.UA, cookie: cookies },
-        }).then((res) => res.json()));
-        // console.log(res);
-        if (res.code === 0)
-            yield playerUtil.addNewCache(url_data, res === null || res === void 0 ? void 0 : res.result);
-        return env.try_unblock_CDN_speed_enabled
-            ? JSON.parse(JSON.stringify(res).replace(/bw=[^&]*/g, "bw=1280000"))
-            : res; //尝试解除下载速度限制
+        catch (error) {
+            console.log("fetchDataFromBili错误:", error);
+            return { code: -1, message: `请求失败: ${error instanceof Error ? error.message : String(error)}` };
+        }
     }
 });
 exports.main = main;

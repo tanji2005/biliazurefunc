@@ -7,15 +7,37 @@ import { IncomingHttpHeaders } from "http";
 
 const fetchDataFromBiliAndCache = async (url_data: string) => {
   // console.log("从BiliBili获取数据", "尝试中");
-  const res = (await fetch(
-    env.api.main.app.playurl + url_data,
-    env.fetch_config_UA
-  ).then((res) => res.json())) as { code: number };
-  if (res.code === 0) await playerUtil.addNewCache(url_data, res);
-  // else console.log("从BiliBili获取数据错误", res);
-  return env.try_unblock_CDN_speed_enabled
-    ? JSON.parse(JSON.stringify(res).replace(/bw=[^&]*/g, "bw=1280000"))
-    : res; //尝试解除下载速度限制
+  try {
+    const response = await fetch(
+      env.api.main.app.playurl + url_data,
+      env.fetch_config_UA
+    );
+    
+    // 检查响应状态
+    if (!response.ok) {
+      console.log("Bilibili API响应错误:", response.status, response.statusText);
+      return { code: -1, message: `HTTP ${response.status}: ${response.statusText}` };
+    }
+    
+    // 检查内容类型
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.log("Bilibili API返回非JSON内容:", contentType);
+      const text = await response.text();
+      console.log("Response text:", text.substring(0, 200));
+      return { code: -1, message: "API返回了非JSON响应" };
+    }
+    
+    const res = await response.json() as { code: number };
+    if (res.code === 0) await playerUtil.addNewCache(url_data, res);
+    // else console.log("从BiliBili获取数据错误", res);
+    return env.try_unblock_CDN_speed_enabled
+      ? JSON.parse(JSON.stringify(res).replace(/bw=[^&]*/g, "bw=1280000"))
+      : res; //尝试解除下载速度限制
+  } catch (error) {
+    console.log("fetchDataFromBiliAndCache错误:", error);
+    return { code: -1, message: `请求失败: ${error instanceof Error ? error.message : String(error)}` };
+  }
 };
 
 /**
