@@ -53,9 +53,11 @@ module.exports = function (context, req) {
     return __awaiter(this, void 0, void 0, function* () {
         context.log('PgcPlayerApiPlayurl: Starting');
         try {
-            // 从完整的请求 URL 中提取路径和查询参数
+            // 从完整的请求 URL 中提取路径和查询参数，并映射到正确的 Bilibili API 路径
             const urlObject = new URL(req.url);
-            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            // 将 /api/legacy/pgc/player/api/playurl 映射为 /pgc/player/api/playurl
+            const mappedPath = urlObject.pathname.replace('/api/legacy', '');
+            const url_data = `${mappedPath}${urlObject.search}`;
             const continue_execute = yield data_parse.middleware(url_data, convertHeaders(req.headers), req.method);
             if (continue_execute[0] == false) {
                 context.res = {

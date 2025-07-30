@@ -47,9 +47,11 @@ module.exports = function (context, req) {
     return __awaiter(this, void 0, void 0, function* () {
         context.log('IntlOgvPlayurl: Starting');
         try {
-            // 从完整的请求 URL 中提取路径和查询参数
+            // 从完整的请求 URL 中提取路径和查询参数，并映射到正确的 Bilibili API 路径
             const urlObject = new URL(req.url);
-            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            // 将 /api/legacy/[path] 映射为 /[path]
+            const mappedPath = urlObject.pathname.replace('/api/legacy', '');
+            const url_data = `${mappedPath}${urlObject.search}`;
             const response = yield fetch(env.api.intl.playurl + url_data, {
                 method: req.method,
                 headers: {
