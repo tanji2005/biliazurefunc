@@ -55,9 +55,7 @@ module.exports = function (context, req) {
         try {
             // 从完整的请求 URL 中提取路径和查询参数，并映射到正确的 Bilibili API 路径
             const urlObject = new URL(req.url);
-            // 将 /api/legacy/pgc/player/api/playurl 映射为 /pgc/player/api/playurl
-            const mappedPath = urlObject.pathname.replace('/api/legacy', '');
-            const url_data = `${mappedPath}${urlObject.search}`;
+            const url_data = `${urlObject.pathname}${urlObject.search}`;
             const continue_execute = yield data_parse.middleware(url_data, convertHeaders(req.headers), req.method);
             if (continue_execute[0] == false) {
                 context.res = {

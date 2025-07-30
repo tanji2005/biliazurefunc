@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "request",
-      "route": "legacy/intl/gateway/v2/app/subtitle",
+      "route": "intl/gateway/v2/app/subtitle",
       "methods": ["get", "post"]
     },
     {

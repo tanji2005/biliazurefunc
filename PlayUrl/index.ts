@@ -13,9 +13,7 @@ module.exports = async function (context: any, req: any) {
     try {
         // 从完整的请求 URL 中提取路径和查询参数，并映射到正确的 Bilibili API 路径
         const urlObject = new URL(req.url);
-        // 将 /api/legacy/[path] 映射为 /[path]
-        const mappedPath = urlObject.pathname.replace('/api/legacy', '');
-        const url_data = `${mappedPath}${urlObject.search}`;
+        const url_data = `${urlObject.pathname}${urlObject.search}`;
 
         // 2. 调用 middleware 进行前置检查
         const continue_execute = await appHandler.middleware(
