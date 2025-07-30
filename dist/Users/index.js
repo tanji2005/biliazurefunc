@@ -44,24 +44,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const _blacklist = __importStar(require("../src/utils/_blacklist"));
 const _config_1 = require("../src/_config");
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('HTTP trigger function processed a request.');
-    // Azure Functions v4中从URL路径中提取动态参数
-    const url = new URL(request.url);
-    const pathSegments = url.pathname.split('/');
-    const uid = pathSegments[pathSegments.length - 1]; // 获取路径最后一段作为uid
-    _config_1.logger
-        .child({ action: "获取黑/白名单", method: request.method, url: request.url })
-        .info({ uid: uid });
-    // 调用黑名单检查功能（恢复原始功能）
-    const result = yield _blacklist.main(Number(uid));
-    return {
-        status: 200,
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(result)
-    };
-});
-exports.default = httpTrigger;
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('Users: Starting');
+        try {
+            // Azure Functions v4中从URL路径中提取动态参数
+            const url = new URL(req.url);
+            const pathSegments = url.pathname.split('/');
+            const uid = pathSegments[pathSegments.length - 1]; // 获取路径最后一段作为uid
+            _config_1.logger
+                .child({ action: "获取黑/白名单", method: req.method, url: req.url })
+                .info({ uid: uid });
+            // 调用黑名单检查功能（恢复原始功能）
+            const result = yield _blacklist.main(Number(uid));
+            context.res = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(result)
+            };
+        }
+        catch (error) {
+            context.log('Users: Error:', error);
+            context.res = {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Internal server error', details: String(error) })
+            };
+        }
+    });
+};
 //# sourceMappingURL=index.js.map

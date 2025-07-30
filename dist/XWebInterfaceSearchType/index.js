@@ -106,65 +106,64 @@ const basic_res = {
     corner: 13,
     index_show: env.fs_label,
 };
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('HTTP trigger function processed a request.');
-    try {
-        // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
-        const url_data = `${urlObject.pathname}${urlObject.search}`;
-        const cookies = (yield (0, _bili_1.getCookies)()) || "";
-        const response = yield fetch(api + url_data, {
-            method: request.method,
-            headers: {
-                "User-Agent": env.UA,
-                cookie: cookies,
-            },
-        });
-        const jsonResponse = yield response.json();
-        const log = env.logger.child({
-            action: "搜索(网页端)",
-            method: request.method,
-            url: request.url,
-        });
-        log.info({});
-        log.debug({ context: jsonResponse });
-        if (jsonResponse.code === 0) {
-            let m_res = jsonResponse;
-            if (m_res.data.result) {
-                m_res["data"]["result"].splice(0, 0, basic_res);
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('XWebInterfaceSearchType: Starting');
+        try {
+            // 从完整的请求 URL 中提取路径和查询参数
+            const urlObject = new URL(req.url);
+            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            const cookies = (yield (0, _bili_1.getCookies)()) || "";
+            const response = yield fetch(api + url_data, {
+                method: req.method,
+                headers: {
+                    "User-Agent": env.UA,
+                    cookie: cookies,
+                },
+            });
+            const jsonResponse = yield response.json();
+            const log = env.logger.child({
+                action: "搜索(网页端)",
+                method: req.method,
+                url: req.url,
+            });
+            log.info({});
+            log.debug({ context: jsonResponse });
+            if (jsonResponse.code === 0) {
+                let m_res = jsonResponse;
+                if (m_res.data.result) {
+                    m_res["data"]["result"].splice(0, 0, basic_res);
+                }
+                else
+                    m_res["data"]["items"] = [basic_res];
+                m_res.data.pagesize += 1;
+                m_res.data.numResults += 1;
+                context.res = {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(m_res)
+                };
             }
-            else
-                m_res["data"]["items"] = [basic_res];
-            m_res.data.pagesize += 1;
-            m_res.data.numResults += 1;
-            return {
-                status: 200,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(m_res)
+            else {
+                context.res = {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jsonResponse)
+                };
+            }
+        }
+        catch (error) {
+            context.log('XWebInterfaceSearchType: Error:', error);
+            context.res = {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Internal server error', details: String(error) })
             };
         }
-        else {
-            return {
-                status: 200,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(jsonResponse)
-            };
-        }
-    }
-    catch (error) {
-        context.log('Error:', error);
-        return {
-            status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
-        };
-    }
-});
-exports.default = httpTrigger;
+    });
+};
 //# sourceMappingURL=index.js.map

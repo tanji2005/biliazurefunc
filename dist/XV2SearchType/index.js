@@ -93,60 +93,59 @@ const basic_res = {
         title: env.fs_watch_button_title,
     },
 };
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('HTTP trigger function processed a request.');
-    try {
-        // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
-        const url_data = `${urlObject.pathname}${urlObject.search}`;
-        const response = yield fetch(api + url_data, {
-            method: request.method,
-            headers: {
-                "User-Agent": env.UA,
-            },
-        });
-        const jsonResponse = yield response.json();
-        const log = env.logger.child({
-            action: "搜索(APP端)",
-            method: request.method,
-            url: request.url,
-        });
-        log.info({});
-        log.debug({ context: jsonResponse });
-        if (jsonResponse.code === 0) {
-            let m_res = jsonResponse;
-            if (m_res.data.items)
-                m_res["data"]["items"].splice(0, 0, basic_res);
-            else
-                m_res["data"]["items"] = [basic_res];
-            return {
-                status: 200,
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('XV2SearchType: Starting');
+        try {
+            // 从完整的请求 URL 中提取路径和查询参数
+            const urlObject = new URL(req.url);
+            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            const response = yield fetch(api + url_data, {
+                method: req.method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    "User-Agent": env.UA,
                 },
-                body: JSON.stringify(m_res)
+            });
+            const jsonResponse = yield response.json();
+            const log = env.logger.child({
+                action: "搜索(APP端)",
+                method: req.method,
+                url: req.url,
+            });
+            log.info({});
+            log.debug({ context: jsonResponse });
+            if (jsonResponse.code === 0) {
+                let m_res = jsonResponse;
+                if (m_res.data.items)
+                    m_res["data"]["items"].splice(0, 0, basic_res);
+                else
+                    m_res["data"]["items"] = [basic_res];
+                context.res = {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(m_res)
+                };
+            }
+            else {
+                context.res = {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jsonResponse)
+                };
+            }
+        }
+        catch (error) {
+            context.log('XV2SearchType: Error:', error);
+            context.res = {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Internal server error', details: String(error) })
             };
         }
-        else {
-            return {
-                status: 200,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(jsonResponse)
-            };
-        }
-    }
-    catch (error) {
-        context.log('Error:', error);
-        return {
-            status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
-        };
-    }
-});
-exports.default = httpTrigger;
+    });
+};
 //# sourceMappingURL=index.js.map

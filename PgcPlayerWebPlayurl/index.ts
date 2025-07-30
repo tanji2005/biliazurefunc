@@ -1,21 +1,19 @@
-import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import * as env from "../src/_config";
 import * as data_parse from "../src/utils/player-data-handler/web";
 
-const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
-    context.log('HTTP trigger function processed a request.');
-
+module.exports = async function (context: any, req: any) {
+    context.log('PgcPlayerWebPlayurl: Starting');
     try {
         // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
+        const urlObject = new URL(req.url);
         const url_data = `${urlObject.pathname}${urlObject.search}`;
         
         let PassWebOnCheck: 0 | 1 = 0; // 当检测到请求来自B站时不受web_on开关影响
         
         // Get header values using Azure Functions v4 Headers API
-        const origin = request.headers.get('origin');
-        const referer = request.headers.get('referer');
-        const cookieHeader = request.headers.get('cookie');
+        const origin = req.headers.get('origin');
+        const referer = req.headers.get('referer');
+        const cookieHeader = req.headers.get('cookie');
         
         // Set CORS headers
         const headers: any = {
@@ -48,11 +46,11 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
             url_data,
             cookies,
             PassWebOnCheck,
-            request.method
+            req.method
         );
 
         if (continue_execute[0] == false) {
-            return {
+            context.res = {
                 status: 200,
                 headers: {
                     ...headers,
@@ -73,7 +71,7 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
                 }
             );
 
-            return {
+            context.res = {
                 status: 200,
                 headers: {
                     ...headers,
@@ -86,15 +84,11 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
             };
         }
     } catch (error) {
-        context.log('Error:', error);
-        return {
+        context.log('PgcPlayerWebPlayurl: Error:', error);
+        context.res = {
             status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Internal server error', details: String(error) })
         };
     }
 };
-
-export default httpTrigger;

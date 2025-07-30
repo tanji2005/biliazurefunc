@@ -1,24 +1,29 @@
-import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import * as env from "../src/_config";
 import * as data_parse from "../src/utils/player-data-handler/app";
-import { convertHeaders } from "../src/utils/_headers";
+// convertHeaders function to convert headers format
+function convertHeaders(headers: any): { [key: string]: string } {
+    const result: { [key: string]: string } = {};
+    for (const [key, value] of headers.entries()) {
+        result[key] = value;
+    }
+    return result;
+}
 
-const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
-    context.log('HTTP trigger function processed a request.');
-
+module.exports = async function (context: any, req: any) {
+    context.log('PgcPlayerApiPlayurl: Starting');
     try {
         // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
+        const urlObject = new URL(req.url);
         const url_data = `${urlObject.pathname}${urlObject.search}`;
 
         const continue_execute = await data_parse.middleware(
             url_data,
-            convertHeaders(request.headers),
-            request.method
+            convertHeaders(req.headers),
+            req.method
         );
 
         if (continue_execute[0] == false) {
-            return {
+            context.res = {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json',
@@ -35,7 +40,7 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
                 JSON.parse(continue_execute[2])
             );
 
-            return {
+            context.res = {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json',
@@ -48,15 +53,11 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
             };
         }
     } catch (error) {
-        context.log('Error:', error);
-        return {
+        context.log('PgcPlayerApiPlayurl: Error:', error);
+        context.res = {
             status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Internal server error', details: String(error) })
         };
     }
 };
-
-export default httpTrigger;

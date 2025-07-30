@@ -49,41 +49,40 @@ const _config_1 = require("../src/_config");
 const qs_1 = __importDefault(require("qs"));
 const env = __importStar(require("../src/_config"));
 const _bili_1 = require("../src/utils/_bili");
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('HTTP trigger function processed a request.');
-    try {
-        // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
-        const url_data = `${urlObject.pathname}${urlObject.search}`;
-        _config_1.logger.child({ action: "", method: request.method, url: request.url }).info({});
-        const url = new URL(url_data, env.api.main.web.playurl);
-        const data = qs_1.default.parse(url.search.slice(1));
-        const result = {
-            accesskey: data.access_key,
-            appkey: data.appkey || "default",
-            params_query_mode: !!data.sign,
-            me: yield (data.sign
-                ? (0, _bili_1.access_keyParams2info)("?" + qs_1.default.stringify(data))
-                : (0, _bili_1.access_key2info)(data.access_key)),
-        };
-        return {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(result)
-        };
-    }
-    catch (error) {
-        context.log('Error:', error);
-        return {
-            status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
-        };
-    }
-});
-exports.default = httpTrigger;
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('ToolsMyInfo: Starting');
+        try {
+            // 从完整的请求 URL 中提取路径和查询参数
+            const urlObject = new URL(req.url);
+            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            _config_1.logger.child({ action: "", method: req.method, url: req.url }).info({});
+            const url = new URL(url_data, env.api.main.web.playurl);
+            const data = qs_1.default.parse(url.search.slice(1));
+            const result = {
+                accesskey: data.access_key,
+                appkey: data.appkey || "default",
+                params_query_mode: !!data.sign,
+                me: yield (data.sign
+                    ? (0, _bili_1.access_keyParams2info)("?" + qs_1.default.stringify(data))
+                    : (0, _bili_1.access_key2info)(data.access_key)),
+            };
+            context.res = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(result)
+            };
+        }
+        catch (error) {
+            context.log('ToolsMyInfo: Error:', error);
+            context.res = {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Internal server error', details: String(error) })
+            };
+        }
+    });
+};
 //# sourceMappingURL=index.js.map

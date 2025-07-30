@@ -44,40 +44,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const appHandler = __importStar(require("../src/utils/player-data-handler/app"));
 const env = __importStar(require("../src/_config"));
-const _headers_1 = require("../src/utils/_headers");
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('HTTP trigger function processed a request.');
-    // 从完整的请求 URL 中提取路径和查询参数
-    const urlObject = new URL(request.url);
-    const url_data = `${urlObject.pathname}${urlObject.search}`;
-    // 2. 调用 middleware 进行前置检查
-    const continue_execute = yield appHandler.middleware(url_data, (0, _headers_1.convertHeaders)(request.headers), // Convert Azure v4 Headers to IncomingHttpHeaders
-    request.method);
-    // 3. 根据 middleware 的结果决定下一步
-    if (continue_execute[0] === false) {
-        // 检查不通过，返回错误信息
-        return {
-            status: 412, // Precondition Failed
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'max-age=30, s-maxage=30'
-            },
-            body: JSON.stringify(env.block(continue_execute[1], continue_execute[2] || ""))
-        };
+// convertHeaders function to convert headers format
+function convertHeaders(headers) {
+    const result = {};
+    for (const [key, value] of headers.entries()) {
+        result[key] = value;
     }
-    else {
-        // 检查通过，调用 main 函数获取数据
-        const result = yield appHandler.main(url_data, JSON.parse(continue_execute[2]) // middleware 会返回用户信息的 JSON 字符串
-        );
-        return {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'max-age=3600, s-maxage=3600'
-            },
-            body: JSON.stringify(result)
-        };
-    }
-});
-exports.default = httpTrigger;
+    return result;
+}
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('PlayUrl: Starting');
+        // 从完整的请求 URL 中提取路径和查询参数
+        const urlObject = new URL(req.url);
+        const url_data = `${urlObject.pathname}${urlObject.search}`;
+        // 2. 调用 middleware 进行前置检查
+        const continue_execute = yield appHandler.middleware(url_data, convertHeaders(req.headers), // Convert Azure v4 Headers to IncomingHttpHeaders
+        req.method);
+        // 3. 根据 middleware 的结果决定下一步
+        if (continue_execute[0] === false) {
+            // 检查不通过，返回错误信息
+            context.res = {
+                status: 412, // Precondition Failed
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'max-age=30, s-maxage=30'
+                },
+                body: JSON.stringify(env.block(continue_execute[1], continue_execute[2] || ""))
+            };
+        }
+        else {
+            // 检查通过，调用 main 函数获取数据
+            const result = yield appHandler.main(url_data, JSON.parse(continue_execute[2]) // middleware 会返回用户信息的 JSON 字符串
+            );
+            context.res = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'max-age=3600, s-maxage=3600'
+                },
+                body: JSON.stringify(result)
+            };
+        }
+    });
+};
 //# sourceMappingURL=index.js.map

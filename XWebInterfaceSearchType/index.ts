@@ -1,4 +1,3 @@
-import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import * as env from "../src/_config";
 import { getCookies } from "../src/utils/_bili";
 
@@ -65,18 +64,18 @@ const basic_res = {
   index_show: env.fs_label,
 };
 
-const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
-    context.log('HTTP trigger function processed a request.');
+module.exports = async function (context: any, req: any) {
+    context.log('XWebInterfaceSearchType: Starting');
 
     try {
         // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
+        const urlObject = new URL(req.url);
         const url_data = `${urlObject.pathname}${urlObject.search}`;
         
         const cookies = (await getCookies()) || "";
 
         const response = await fetch(api + url_data, {
-            method: request.method,
+            method: req.method,
             headers: {
                 "User-Agent": env.UA,
                 cookie: cookies,
@@ -90,8 +89,8 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
 
         const log = env.logger.child({
             action: "搜索(网页端)",
-            method: request.method,
-            url: request.url,
+            method: req.method,
+            url: req.url,
         });
         log.info({});
         log.debug({ context: jsonResponse });
@@ -104,7 +103,7 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
             m_res.data.pagesize += 1;
             m_res.data.numResults += 1;
             
-            return {
+            context.res = {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json'
@@ -112,7 +111,7 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
                 body: JSON.stringify(m_res)
             };
         } else {
-            return {
+            context.res = {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json'
@@ -121,15 +120,11 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
             };
         }
     } catch (error) {
-        context.log('Error:', error);
-        return {
+        context.log('XWebInterfaceSearchType: Error:', error);
+        context.res = {
             status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Internal server error', details: String(error) })
         };
     }
 };
-
-export default httpTrigger;

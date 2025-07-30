@@ -14,31 +14,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sstore_1 = __importDefault(require("@beetcb/sstore"));
 const _config_1 = require("../src/_config");
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('HTTP trigger function processed a request.');
-    // 提取查询参数
-    const urlObject = new URL(request.url);
-    const queryParams = new URLSearchParams(urlObject.search);
-    const secret = queryParams.get('s');
-    if (secret !== _config_1.local_cache_secret) {
-        return {
-            status: 403,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ mes: "Secret Error!" })
-        };
-    }
-    else {
-        sstore_1.default.clear();
-        return {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ mes: "Clean All Cache and Logs! Done!" })
-        };
-    }
-});
-exports.default = httpTrigger;
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('AdminClean: Starting');
+        try {
+            // 提取查询参数
+            const urlObject = new URL(req.url);
+            const queryParams = new URLSearchParams(urlObject.search);
+            const secret = queryParams.get('s');
+            if (secret !== _config_1.local_cache_secret) {
+                context.res = {
+                    status: 403,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mes: "Secret Error!" })
+                };
+            }
+            else {
+                sstore_1.default.clear();
+                context.res = {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mes: "Clean All Cache and Logs! Done!" })
+                };
+            }
+        }
+        catch (error) {
+            context.log('AdminClean: Error:', error);
+            context.res = {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Internal server error', details: String(error) })
+            };
+        }
+    });
+};
 //# sourceMappingURL=index.js.map

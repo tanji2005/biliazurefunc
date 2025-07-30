@@ -44,44 +44,43 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const env = __importStar(require("../src/_config"));
 const api = env.api.main.web.season_info;
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('HTTP trigger function processed a request.');
-    try {
-        // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
-        const url_data = `${urlObject.pathname}${urlObject.search}`;
-        const response = yield fetch(api + url_data, {
-            method: request.method,
-            headers: {
-                "User-Agent": env.UA,
-            },
-        });
-        const jsonResponse = yield response.json();
-        const log = env.logger.child({
-            action: "番剧详情(网页端)",
-            method: request.method,
-            url: request.url,
-        });
-        log.info({});
-        log.debug({ context: jsonResponse });
-        return {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(jsonResponse)
-        };
-    }
-    catch (error) {
-        context.log('Error:', error);
-        return {
-            status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
-        };
-    }
-});
-exports.default = httpTrigger;
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('PgcViewWebSeason: Starting');
+        try {
+            // 从完整的请求 URL 中提取路径和查询参数
+            const urlObject = new URL(req.url);
+            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            const response = yield fetch(api + url_data, {
+                method: req.method,
+                headers: {
+                    "User-Agent": env.UA,
+                },
+            });
+            const jsonResponse = yield response.json();
+            const log = env.logger.child({
+                action: "番剧详情(网页端)",
+                method: req.method,
+                url: req.url,
+            });
+            log.info({});
+            log.debug({ context: jsonResponse });
+            context.res = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonResponse)
+            };
+        }
+        catch (error) {
+            context.log('PgcViewWebSeason: Error:', error);
+            context.res = {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Internal server error', details: String(error) })
+            };
+        }
+    });
+};
 //# sourceMappingURL=index.js.map

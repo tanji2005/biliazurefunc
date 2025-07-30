@@ -1,4 +1,3 @@
-import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { logger } from "../src/_config";
 import qs from "qs";
 import * as env from "../src/_config";
@@ -14,15 +13,14 @@ function cookieToJson(cookies: string) {
     return obj;
 }
 
-const httpTrigger = async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
-    context.log('HTTP trigger function processed a request.');
-
+module.exports = async function (context: any, req: any) {
+    context.log('ToolsCookies2Accesskey: Starting');
     try {
         // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
+        const urlObject = new URL(req.url);
         const url_data = `${urlObject.pathname}${urlObject.search}`;
         
-        logger.child({ action: "", method: request.method, url: request.url }).info({});
+        logger.child({ action: "", method: req.method, url: req.url }).info({});
         
         const url = new URL(url_data, env.api.main.web.playurl);
         const data = qs.parse(url.search.slice(1));
@@ -32,7 +30,7 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
             access_key: await cookies2access_key(cookies as any),
         };
 
-        return {
+        context.res = {
             status: 200,
             headers: {
                 'Content-Type': 'application/json'
@@ -40,15 +38,11 @@ const httpTrigger = async (request: HttpRequest, context: InvocationContext): Pr
             body: JSON.stringify(result)
         };
     } catch (error) {
-        context.log('Error:', error);
-        return {
+        context.log('ToolsCookies2Accesskey: Error:', error);
+        context.res = {
             status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Internal server error', details: String(error) })
         };
     }
 };
-
-export default httpTrigger;

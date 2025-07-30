@@ -44,53 +44,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const env = __importStar(require("../src/_config"));
 const api = env.api.intl.season_info;
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
-    context.log('HTTP trigger function processed a request.');
-    try {
-        // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
-        const url_data = `${urlObject.pathname}${urlObject.search}`;
-        const response = yield fetch(api + url_data, {
-            method: request.method,
-        });
-        const jsonResponse = yield response.json();
-        if (jsonResponse.code === 0 && env.th_subtitle_api) {
-            let m_res = jsonResponse;
-            if ((_b = (_a = m_res.result) === null || _a === void 0 ? void 0 : _a.modules[0]) === null || _b === void 0 ? void 0 : _b.episodes) {
-                const episodes = (_d = (_c = m_res.result) === null || _c === void 0 ? void 0 : _c.modules[0]) === null || _d === void 0 ? void 0 : _d.episodes;
-                for (const ep of episodes) {
-                    // Processing logic can be added here if needed
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c, _d;
+        context.log('IntlOgvViewAppSeason: Starting');
+        try {
+            // 从完整的请求 URL 中提取路径和查询参数
+            const urlObject = new URL(req.url);
+            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            const response = yield fetch(api + url_data, {
+                method: req.method,
+            });
+            const jsonResponse = yield response.json();
+            if (jsonResponse.code === 0 && env.th_subtitle_api) {
+                let m_res = jsonResponse;
+                if ((_b = (_a = m_res.result) === null || _a === void 0 ? void 0 : _a.modules[0]) === null || _b === void 0 ? void 0 : _b.episodes) {
+                    const episodes = (_d = (_c = m_res.result) === null || _c === void 0 ? void 0 : _c.modules[0]) === null || _d === void 0 ? void 0 : _d.episodes;
+                    for (const ep of episodes) {
+                        // Processing logic can be added here if needed
+                    }
                 }
+                context.res = {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(m_res)
+                };
             }
-            return {
-                status: 200,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(m_res)
+            else {
+                context.res = {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jsonResponse)
+                };
+            }
+        }
+        catch (error) {
+            context.log('IntlOgvViewAppSeason: Error:', error);
+            context.res = {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Internal server error', details: String(error) })
             };
         }
-        else {
-            return {
-                status: 200,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(jsonResponse)
-            };
-        }
-    }
-    catch (error) {
-        context.log('Error:', error);
-        return {
-            status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
-        };
-    }
-});
-exports.default = httpTrigger;
+    });
+};
 //# sourceMappingURL=index.js.map

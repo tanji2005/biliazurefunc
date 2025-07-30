@@ -58,37 +58,36 @@ function cookieToJson(cookies) {
     });
     return obj;
 }
-const httpTrigger = (request, context) => __awaiter(void 0, void 0, void 0, function* () {
-    context.log('HTTP trigger function processed a request.');
-    try {
-        // 从完整的请求 URL 中提取路径和查询参数
-        const urlObject = new URL(request.url);
-        const url_data = `${urlObject.pathname}${urlObject.search}`;
-        _config_1.logger.child({ action: "", method: request.method, url: request.url }).info({});
-        const url = new URL(url_data, env.api.main.web.playurl);
-        const data = qs_1.default.parse(url.search.slice(1));
-        const cookies = cookieToJson(data.cookies);
-        const result = {
-            access_key: yield (0, _bili_1.cookies2access_key)(cookies),
-        };
-        return {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(result)
-        };
-    }
-    catch (error) {
-        context.log('Error:', error);
-        return {
-            status: 500,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
-        };
-    }
-});
-exports.default = httpTrigger;
+module.exports = function (context, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        context.log('ToolsCookies2Accesskey: Starting');
+        try {
+            // 从完整的请求 URL 中提取路径和查询参数
+            const urlObject = new URL(req.url);
+            const url_data = `${urlObject.pathname}${urlObject.search}`;
+            _config_1.logger.child({ action: "", method: req.method, url: req.url }).info({});
+            const url = new URL(url_data, env.api.main.web.playurl);
+            const data = qs_1.default.parse(url.search.slice(1));
+            const cookies = cookieToJson(data.cookies);
+            const result = {
+                access_key: yield (0, _bili_1.cookies2access_key)(cookies),
+            };
+            context.res = {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(result)
+            };
+        }
+        catch (error) {
+            context.log('ToolsCookies2Accesskey: Error:', error);
+            context.res = {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Internal server error', details: String(error) })
+            };
+        }
+    });
+};
 //# sourceMappingURL=index.js.map
