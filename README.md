@@ -1,109 +1,47 @@
-# BiliRoaming Azure Functions Migration
+# BiliRoaming Azure Functions Proxy
 
-This directory contains the Azure Functions version of the BiliRoaming API server.
+This repository hosts a minimal Azure Functions deployment that proxies a handful of BiliRoaming routes.  
+It mirrors the behaviour of [biliroaming-ts-server-vercel](https://github.com/bili-vd-bak/biliroaming-ts-server-vercel) while targeting Azure Functions.  
+The same build output is used by three production Function Apps (`biliroaming`, `biliesasian`, `bilihk`).
 
-## Directory Structure
+> 📄 A Chinese translation is available in [`README.zh-CN.md`](README.zh-CN.md).
 
-```
-azure_functions/
-├── AdminClean/                # Admin cache cleaning
-├── AdminInit/                 # Admin database initialization  
-├── AdminLog/                  # Admin logging
-├── IntlAppSearchType/         # International app search
-├── IntlAppSubtitle/           # International app subtitles
-├── IntlOgvPlayurl/            # International OGV playurl
-├── IntlOgvViewAppSeason/      # International OGV season info
-├── PgcPlayerApiPlayurl/       # PGC player API playurl
-├── PgcPlayerWebPlayurl/       # PGC player web playurl
-├── PgcViewV2AppSeason/        # PGC app season info
-├── PgcViewWebSeason/          # PGC web season info
-├── PlayUrl/                   # Main PlayUrl API function
-├── ServerInfo/                # Server information
-├── ToolsCookies2Accesskey/    # Cookie to access key conversion
-├── ToolsMyInfo/               # User info retrieval
-├── Users/                     # User blacklist check (dynamic route)
-├── XV2SearchType/             # App search type
-├── XWebInterfaceSearchType/   # Web interface search
-├── src/                       # Source code copied from main project
-├── package.json               # Azure Functions dependencies
-├── tsconfig.json              # TypeScript configuration
-└── host.json                  # Azure Functions host configuration
+## Available Functions
+
+| Function | Route | Target |
+| --- | --- | --- |
+| `XWebInterfaceSearchType` | `/x/web-interface/search/type` | `https://api.bilibili.com` |
+| `XV2SearchType` | `/x/v2/search/type` | `https://app.bilibili.com` |
+| `PgcViewWebSeason` | `/pgc/view/web/season` | `https://api.bilibili.com` |
+| `PgcViewV2AppSeason` | `/pgc/view/v2/app/season` | `https://api.bilibili.com` |
+| `PgcPlayerWebPlayurl` | `/pgc/player/web/playurl` | `https://api.bilibili.com` (forces referer + CORS) |
+| `PgcPlayerApiPlayurl` | `/pgc/player/api/playurl` | `https://api.bilibili.com` |
+
+All functions share the lightweight proxy implementation in `src/proxy.ts`, which forwards the original request, preserves headers, and optionally sets CORS when a browser origin is detected.
+
+## Development
+
+```bash
+npm install
+npm run build
+func start            # optional: requires Azure Functions Core Tools
 ```
 
-## Total API Coverage
+The TypeScript compiler outputs to `dist/`; GitHub Actions uses the same build artifact for all three Function Apps.
 
-✅ **18 Azure Functions created** covering all API endpoints from the original Next.js project:
+## Deployment Notes
 
-### Admin APIs (3)
-- `/admin/clean` → AdminClean
-- `/admin/init` → AdminInit
-- `/admin/log` → AdminLog
+- GitHub Actions workflows under `.github/workflows/` handle CI/CD using OIDC (`azure/login@v2`).  
+- Each workflow references the existing repository secrets named `AZUREAPPSERVICE_{CLIENTID|TENANTID|SUBSCRIPTIONID}_…`. Ensure they remain populated with valid Azure AD application credentials and subscription IDs.  
+- Workflows are designed exclusively for Azure; do not reuse these artifacts in non-Azure environments.
 
-### Standard APIs (11)
-- `/intl/gateway/v2/app/search/type` → IntlAppSearchType
-- `/intl/gateway/v2/app/subtitle` → IntlAppSubtitle
-- `/intl/gateway/v2/ogv/playurl` → IntlOgvPlayurl
-- `/intl/gateway/v2/ogv/view/app/season` → IntlOgvViewAppSeason
-- `/pgc/player/api/playurl` → PgcPlayerApiPlayurl
-- `/pgc/player/web/playurl` → PgcPlayerWebPlayurl
-- `/pgc/view/v2/app/season` → PgcViewV2AppSeason
-- `/pgc/view/web/season` → PgcViewWebSeason
-- `/server_info` → ServerInfo
-- `/x/v2/search/type` → XV2SearchType
-- `/x/web-interface/search/type` → XWebInterfaceSearchType
+## Acknowledgements
 
-### Tools APIs (2)
-- `/tools/cookies2accesskey` → ToolsCookies2Accesskey
-- `/tools/my_info` → ToolsMyInfo
+- Maintainers and contributors to `biliroaming-ts-server-vercel` for the original implementation.  
+- OpenAI’s Codex (GPT-5-based assistant) for development support.  
+- Anthropic’s Claude Code for additional inspiration and tooling.  
+- Microsoft 365 Developer Program for providing the E5 subscription that powers this work.
 
-### User APIs (1)
-- `/users/[uid]` → Users (dynamic route)
+---
 
-### Additional (1)
-- Custom PlayUrl function for main playurl handling
-
-## Key Features
-
-1. **Complete API Migration**: All 17 original API endpoints now have corresponding Azure Functions
-2. **Blacklist Functionality**: Restored to use configuration switches instead of being completely disabled
-3. **Dynamic Routes**: Proper handling of dynamic routes like `/users/{uid}`
-4. **CORS Support**: Web functions include proper CORS headers
-5. **Authentication**: Admin functions require secret authentication
-6. **Caching**: Appropriate cache headers are set for different endpoints
-7. **Logging**: All functions include proper logging functionality
-
-## Setup
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Build the project:
-   ```bash
-   npm run build
-   ```
-
-3. Start the Azure Functions runtime:
-   ```bash
-   npm start
-   ```
-
-## Example URLs
-
-After starting the functions, all APIs will be available at:
-- `http://localhost:7071/[route]`
-
-Examples:
-- Main PlayUrl API: `http://localhost:7071/pgc/player/api/playurl`
-- User API: `http://localhost:7071/users/123456`
-- Server Info: `http://localhost:7071/server_info`
-- Admin Clean: `http://localhost:7071/admin/clean?s=[secret]`
-
-## Migration Notes
-
-- All original functionality has been preserved
-- Function structure follows Azure Functions v4 Node.js model
-- Each function is isolated and can be deployed independently
-- Source code in `src/` directory remains unchanged from original project
-- Blacklist functionality uses the same configuration switches as the original# biliazurefunc
+**Azure-only usage reminder:** the proxy targets rely on Azure Functions hosting, Azure AD identities, and the associated subscription. Avoid running the workflows or deployment scripts on other clouds to prevent credential or infrastructure issues.
