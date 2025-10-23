@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "request",
       "route": "x/web-interface/search/type",
-      "methods": ["get", "post"]
+      "methods": ["get", "post", "options"]
     },
     {
       "type": "http",

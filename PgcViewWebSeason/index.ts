@@ -1,46 +1,16 @@
-import * as env from "../src/_config";
+import { endpoints } from "../src/config";
+import { forwardRequest } from "../src/proxy";
 
-const api = env.api.main.web.season_info;
+const handler = async (context: any, req: any): Promise<void> => {
+  const requestHeaders = (req.headers ?? {}) as Record<string, string | undefined>;
+  const origin = requestHeaders.origin ?? requestHeaders.Origin;
 
-module.exports = async function (context: any, req: any) {
-    context.log('PgcViewWebSeason: Starting');
-    try {
-        // 从完整的请求 URL 中提取路径和查询参数，并映射到正确的 Bilibili API 路径
-        const urlObject = new URL(req.url);
-        // 将 /api/[path] 映射为 /[path]
-        const mappedPath = urlObject.pathname.replace('/api', '');
-        const url_data = `${mappedPath}${urlObject.search}`;
-        
-        const response = await fetch(api + url_data, {
-            method: req.method,
-            headers: {
-                "User-Agent": env.UA,
-            },
-        });
-
-        const jsonResponse = await response.json();
-
-        const log = env.logger.child({
-            action: "番剧详情(网页端)",
-            method: req.method,
-            url: req.url,
-        });
-        log.info({});
-        log.debug({ context: jsonResponse });
-
-        context.res = {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(jsonResponse)
-        };
-    } catch (error) {
-        context.log('PgcViewWebSeason: Error:', error);
-        context.res = {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Internal server error', details: String(error) })
-        };
-    }
+  await forwardRequest(context, req, {
+    targetBase: endpoints.webApi,
+    enableCors: true,
+    corsAllowOrigin: origin,
+  });
 };
+
+export default handler;
+module.exports = handler;
